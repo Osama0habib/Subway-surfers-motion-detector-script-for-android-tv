@@ -1,5 +1,9 @@
 # Core dependencies for the Subway Surfers motion controller.
 # Install with:  pip install -r requirements.txt
+#
+# IMPORTANT: MediaPipe publishes wheels only for Python 3.8 - 3.11 (and some
+# 3.12 builds). On Python 3.13+ the install may fail or be broken, causing
+# "module 'mediapipe' has no attribute 'solutions'". Use a 3.11 venv if so.
 
 opencv-python>=4.8.0
-mediapipe>=0.10.9
+mediapipe>=0.10.9,<0.11

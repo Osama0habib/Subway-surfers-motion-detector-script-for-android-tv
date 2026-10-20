@@ -19,7 +19,32 @@ import subprocess
 import time
 
 import cv2
-import mediapipe as mp
+
+# MediaPipe's top-level ``mp.solutions`` attribute is populated lazily and, on
+# some builds/platforms, is not available until the submodules are imported
+# directly. Importing them explicitly avoids the common
+# "module 'mediapipe' has no attribute 'solutions'" error. If MediaPipe itself
+# is missing or broken (e.g. installed under an unsupported Python version),
+# we raise a clear, actionable message instead of a cryptic traceback.
+try:
+    from mediapipe.python.solutions import drawing_styles as mp_drawing_styles
+    from mediapipe.python.solutions import drawing_utils as mp_drawing
+    from mediapipe.python.solutions import pose as mp_pose
+except (ImportError, AttributeError) as exc:  # pragma: no cover - env issue
+    import sys
+
+    raise SystemExit(
+        "Failed to load MediaPipe Pose.\n"
+        f"  Underlying error: {exc}\n\n"
+        "Fixes:\n"
+        "  1. Install it:  pip install -r requirements.txt\n"
+        "  2. MediaPipe ships wheels for Python 3.8-3.11 (and some 3.12). "
+        f"You are on Python {sys.version.split()[0]}. If that is 3.13+, "
+        "create a venv with a supported version, e.g.:\n"
+        "       python3.11 -m venv .venv && source .venv/bin/activate\n"
+        "       pip install -r requirements.txt\n"
+        "  3. Make sure no file named 'mediapipe.py' exists in this folder."
+    )
 
 # ---------------------------------------------------------------------------
 # CONFIGURATION
@@ -86,11 +111,6 @@ ACTION_COLORS = {
     "JUMP": (0, 255, 0),
     "DUCK": (0, 165, 255),
 }
-
-mp_pose = mp.solutions.pose
-mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
-
 
 # ---------------------------------------------------------------------------
 # ADB HELPERS
